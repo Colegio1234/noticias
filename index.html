@@ -1,0 +1,100 @@
+from zipfile import ZipFile
+import os
+
+# HTML con clave integrada
+html_content = """
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Noticias Colombia</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f4f6f8;
+      color: #333;
+    }
+    header {
+      background-color: #003366;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+    .news-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+    .news-card {
+      background-color: white;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .news-card h2 {
+      font-size: 1.2em;
+      color: #003366;
+    }
+    .news-card p {
+      font-size: 0.9em;
+    }
+    .news-card a {
+      text-decoration: none;
+      color: #0077cc;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Noticias Colombia y el Mundo</h1>
+  </header>
+  <main class="news-container" id="news"></main>
+
+  <script>
+    const apiKey = "2fec3900876f4c209015cd35d902b29c";
+    const url = `https://newsapi.org/v2/top-headlines?country=co&pageSize=12&apiKey=${apiKey}`;
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        const newsContainer = document.getElementById("news");
+        data.articles.forEach(article => {
+          const card = document.createElement("div");
+          card.className = "news-card";
+          card.innerHTML = `
+            <h2>${article.title}</h2>
+            <p>${article.description || ''}</p>
+            <a href="${article.url}" target="_blank">Leer más</a>
+          `;
+          newsContainer.appendChild(card);
+        });
+      })
+      .catch(error => {
+        console.error("Error cargando noticias:", error);
+      });
+  </script>
+</body>
+</html>
+"""
+
+# Guardar el archivo HTML
+output_dir = "/mnt/data/noticias_colombia_final"
+os.makedirs(output_dir, exist_ok=True)
+html_path = os.path.join(output_dir, "index.html")
+with open(html_path, "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+# Empaquetar en ZIP
+zip_path = "/mnt/data/noticias_colombia_final.zip"
+with ZipFile(zip_path, "w") as zipf:
+    zipf.write(html_path, arcname="index.html")
+
+zip_path
